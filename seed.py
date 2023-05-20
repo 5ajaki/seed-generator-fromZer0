@@ -3,16 +3,6 @@ import hashlib
 import tkinter as tk
 from tkinter import ttk
 
-def string_to_binary(input_string):
-    # Hash the input string
-    hashed = hashlib.sha256(input_string.encode()).digest()
-    
-    # Convert the hash to binary
-    binary_str = ''.join(format(byte, '08b') for byte in hashed)
-    
-    return binary_str
-
-
 def binary_to_decimal(binary):
     binary = binary[::-1]  # Reverse the binary string to start from rightmost bit
     decimal = 0
@@ -49,11 +39,6 @@ def generate_binary():
 
     # Insert the new binary string into the text field
     result_text.insert(tk.END, binary_str)
-
-def transform_binary():
-    # Transform User input to 256 binary instead of random entry
-    binary_data = os.urandom(32)  # Correct this - Should come from text input field
-    binary_str = ''.join(format(byte, '08b') for byte in binary_data)
 
 def generate_sha256():
     # Retrieve binary from text field
@@ -106,38 +91,50 @@ def generate_sha256():
 # generate_button.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
 
 ###################
-
-
 # Create the main window
 root = tk.Tk()
 root.title("Seed Phrase Generator")
 
-# Create a main frame
-main_frame = ttk.Frame(root, padding="10")
-main_frame.grid(sticky='NSEW')
-
 # Create a frame for the buttons and text fields
-frame = ttk.Frame(main_frame, padding="10", relief='sunken', borderwidth=2)
+frame = ttk.Frame(root, padding="10")
 frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
 
-# Create a button that will call generate_binary to fill binary data
-generate_button = ttk.Button(frame, text="Produce 256 bits of Random Entropy", command=generate_binary)
-generate_button.grid(row=0, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), padx=5, pady=5)
+# Create a separate frame for each section
+entropy_frame = ttk.LabelFrame(frame, text="Entropy Section", padding="10")
+entropy_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), padx=10, pady=10)
 
-# Create a button that will transform user input to binary
-generate_button = ttk.Button(frame, text="Transform Input to Binary", command=transform_binary)
-generate_button.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), padx=5, pady=5)
+generate_frame = ttk.LabelFrame(frame, text="Generate Section", padding="10")
+generate_frame.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), padx=10, pady=10)
 
-# Create a text field for input here.  Use the input for 
+# Move the Entropy related widgets to the Entropy frame
+generate_button = ttk.Button(entropy_frame, text="Entropy", command=generate_binary)
+generate_button.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
 
+result_label = ttk.Label(entropy_frame, text="Produce 256 bits of entropy somehow:")
+result_label.grid(row=1, column=0, sticky=(tk.W))
+
+result_text = tk.Text(entropy_frame, width=48, height=6)
+result_text.grid(row=1, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), columnspan=4)
+
+# Move the Generate related widgets to the Generate frame
+hash_button = ttk.Button(generate_frame, text="Generate", command=generate_sha256)
+hash_button.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+
+hashed_result_label = ttk.Label(generate_frame, text="Take the SHA256 of that entropy, jam the\nfirst 8 bits of the result to the end of that entropy\n(gives you 264 bits in total):")
+hashed_result_label.grid(row=1, column=0, sticky=(tk.W))
+
+hashed_result_text = tk.Text(generate_frame, width=48, height=6)
+hashed_result_text.grid(row=1, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), columnspan=4)
+
+#########################
 
 # Create a label
-result_label = ttk.Label(frame, text="256 bits:")
-result_label.grid(row=2, column=0, sticky=(tk.W))
+result_label = ttk.Label(frame, text="Produce 256 bits of entropy somehow:")
+result_label.grid(row=1, column=0, sticky=(tk.W))
 
 # Create a text field to display the binary
 result_text = tk.Text(frame, width=48, height=6)
-result_text.grid(row=2, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), columnspan=4)
+result_text.grid(row=1, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), columnspan=4)
 
 # Create a button that will call generate_sha256 when clicked
 hash_button = ttk.Button(frame, text="Generate", command=generate_sha256)
